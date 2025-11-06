@@ -19,7 +19,8 @@
     "react-dom": "^19.0.0",
     "resend": "^6.4.1",
     "sonner": "^2.0.3",
-    "tailwind-merge": "^3.1.0"
+    "tailwind-merge": "^3.1.0",
+    "three": "^0.172.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
