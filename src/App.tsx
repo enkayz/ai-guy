@@ -8,6 +8,7 @@ import { Hero } from "./components/Hero";
 import { Chat } from "./components/Chat";
 import { Scheduler } from "./components/Scheduler";
 import { Confirmation } from "./components/Confirmation";
+import { DemosceneCanvas } from "./components/DemosceneCanvas";
 import React from "react";
 
 export default function App() {
@@ -32,16 +33,27 @@ export default function App() {
 
   if (user === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="w-full max-w-md mx-auto p-8">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-              <span className="text-2xl">🤖</span>
+      <div className="hero-shell">
+        <div className="hero-media" aria-hidden>
+          <DemosceneCanvas className="hero-media-canvas" intensity={0.85} />
+          <div className="hero-media-overlay" />
+        </div>
+        <div className="hero-content">
+          <div className="hero-panel w-full max-w-md space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="hero-logo text-2xl">🤖</div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-slate-200/70">The AI Guy</p>
+                <h1 className="text-3xl font-semibold text-white">Sign in</h1>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold mb-2">Welcome to The AI Guy</h1>
-            <p className="text-gray-600">Sign in to start your AI transformation journey</p>
+            <p className="text-slate-200/80">
+              Join the workspace to pick up conversations, manage leads, and collaborate with the AI Guy team.
+            </p>
+            <div className="rounded-2xl bg-white/95 p-6 shadow-xl backdrop-blur-sm">
+              <SignInForm />
+            </div>
           </div>
-          <SignInForm />
         </div>
         <Toaster />
       </div>
@@ -67,10 +79,8 @@ export default function App() {
         </div>
       </header>
       
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-2xl mx-auto">
-          <Content />
-        </div>
+      <main className="flex-1 relative">
+        <Content />
       </main>
       <Toaster />
     </div>
@@ -259,24 +269,37 @@ function Content() {
   if (step === "hero") {
     return <Hero onSubmit={handleHeroSubmit} />;
   }
+
   if (step === "chat" && lead) {
     return (
-      <Chat
-        chat={lead.chat}
-        onSend={handleChatSend}
-        onBookingRequest={handleBookingRequest}
-        disabled={systemThinking}
-        systemThinking={systemThinking}
-      />
+      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+        <Chat
+          chat={lead.chat}
+          onSend={handleChatSend}
+          onBookingRequest={handleBookingRequest}
+          disabled={systemThinking}
+          systemThinking={systemThinking}
+        />
+      </div>
     );
   }
+
   if (step === "scheduler") {
-    return <Scheduler onBook={handleBook} loading={bookingLoading} error={bookingError} />;
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-10">
+        <Scheduler onBook={handleBook} loading={bookingLoading} error={bookingError} />
+      </div>
+    );
   }
+
   if (step === "confirmation") {
-    return <Confirmation booking={bookingDetails} />;
+    return (
+      <div className="mx-auto w-full max-w-2xl px-4 py-10">
+        <Confirmation booking={bookingDetails} />
+      </div>
+    );
   }
-  
+
   return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
