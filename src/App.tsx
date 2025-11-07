@@ -13,6 +13,15 @@ import React from "react";
 export default function App() {
   const user = useQuery(api.auth.loggedInUser);
 
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (user === null) {
+      window.localStorage.removeItem("contentStep");
+      window.localStorage.removeItem("contentLeadId");
+      window.localStorage.removeItem("contentBookingDetails");
+    }
+  }, [user]);
+
   if (user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -70,20 +79,100 @@ export default function App() {
 
 function Content() {
   // App state: "hero" | "chat" | "scheduler" | "confirmation"
-  const [step, setStep] = React.useState<"hero" | "chat" | "scheduler" | "confirmation">("hero");
-  const [leadId, setLeadId] = React.useState<Id<"leads"> | null>(null);
+  const [step, setStep] = React.useState<"hero" | "chat" | "scheduler" | "confirmation">(() => {
+    if (typeof window !== "undefined") {
+      const storedStep = window.localStorage.getItem("contentStep");
+      if (
+        storedStep === "hero" ||
+        storedStep === "chat" ||
+        storedStep === "scheduler" ||
+        storedStep === "confirmation"
+      ) {
+        return storedStep;
+      }
+    }
+    return "hero";
+  });
+  const [leadId, setLeadId] = React.useState<Id<"leads"> | null>(() => {
+    if (typeof window !== "undefined") {
+      const storedLeadId = window.localStorage.getItem("contentLeadId");
+      return storedLeadId ? (storedLeadId as Id<"leads">) : null;
+    }
+    return null;
+  });
   const [systemThinking, setSystemThinking] = React.useState(false);
   const [bookingDetails, setBookingDetails] = React.useState<{
     slot: string;
     timezone: string;
     email: string;
-  } | null>(null);
+  } | null>(() => {
+    if (typeof window !== "undefined") {
+      const storedDetails = window.localStorage.getItem("contentBookingDetails");
+      if (storedDetails) {
+        try {
+          const parsed = JSON.parse(storedDetails);
+          if (
+            parsed &&
+            typeof parsed === "object" &&
+            typeof parsed.slot === "string" &&
+            typeof parsed.timezone === "string" &&
+            typeof parsed.email === "string"
+          ) {
+            return parsed;
+          }
+        } catch (error) {
+          console.warn("Failed to parse stored booking details", error);
+        }
+      }
+    }
+    return null;
+  });
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (step === "hero" && !leadId && !bookingDetails) {
+      window.localStorage.removeItem("contentStep");
+      return;
+    }
+    window.localStorage.setItem("contentStep", step);
+  }, [step, leadId, bookingDetails]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (leadId) {
+      window.localStorage.setItem("contentLeadId", leadId);
+    } else {
+      window.localStorage.removeItem("contentLeadId");
+    }
+  }, [leadId]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (bookingDetails) {
+      window.localStorage.setItem("contentBookingDetails", JSON.stringify(bookingDetails));
+    } else {
+      window.localStorage.removeItem("contentBookingDetails");
+    }
+  }, [bookingDetails]);
 
   // Chat state
   const lead = useQuery(
     api.leads.getLead,
     leadId ? { leadId } : "skip"
   );
+
+  React.useEffect(() => {
+    if (leadId && lead === null) {
+      setLeadId(null);
+      setStep("hero");
+      setBookingDetails(null);
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("contentStep");
+        window.localStorage.removeItem("contentLeadId");
+        window.localStorage.removeItem("contentBookingDetails");
+      }
+    }
+  }, [leadId, lead]);
 
   // 1. Hero: capture initial text
   const createLead = useMutation(api.leads.createLead);
