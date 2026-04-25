@@ -46,7 +46,7 @@ function html(summary) {
 }
 
 export default async (req) => {
-  const expected = Netlify.env.get("METRICS_KEY");
+  const expected = Netlify.env.get("METRICS_KEY") || process.env.METRICS_KEY;
   if (!expected || metricsKeyFrom(req) !== expected) {
     return new Response("Not found", { status: 404 });
   }
