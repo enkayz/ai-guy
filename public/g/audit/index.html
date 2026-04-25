@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/gumtree-campaign.css" />
+    <title>Free System 8 audit | SYSTEM 8</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand-row">
+        <div>
+          <div class="brand">SYSTEM 8</div>
+          <div class="promise">Practical AI, automation and home-office systems</div>
+        </div>
+      </header>
+      <section class="hero">
+        <div>
+          <h1>Get the free setup/workflow audit</h1>
+          <p class="kicker">Bring the sheet, the messy setup, or the rough workflow. The first useful step is to map what is already there.</p>
+          <p class="breadcrumb">Soft start: no hard sell, no data grab before you deliberately reach out.</p>
+        </div>
+        <aside class="panel">
+          <h2>What happens next</h2>
+          <ul>
+            <li>Pick the one problem that would make the biggest difference.</li>
+            <li>Turn it into a short map: current state, quick win, and next step.</li>
+            <li>Leave with one prompt, checklist, or setup note you can actually use.</li>
+          </ul>
+          <div class="cta-row">
+            <a class="cta" href="/">Start the audit conversation</a>
+            <span class="short">You can also reply in Gumtree and mention the sheet you scanned.</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const body = JSON.stringify({
+        event: "cta_click",
+        campaign: "gumtree",
+        sheet: params.get("from") || "audit",
+        variant: params.get("c") || "unknown",
+        intent: "audit",
+        path: window.location.pathname + window.location.search,
+        timestamp: new Date().toISOString(),
+      });
+      navigator.sendBeacon?.("/api/track", new Blob([body], { type: "application/json" }));
+    </script>
+  </body>
+</html>
